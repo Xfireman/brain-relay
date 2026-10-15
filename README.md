@@ -59,7 +59,7 @@ The server key stays out of browser responses, local capsule files, exports and 
 
 ## Local data and limits
 
-Default data directory: `~/.local/share/brain-relay`. Override with `RELAY_DATA_DIR=/path/to/data`. Back up `capsules.json`; exporting individual capsules is also supported. Updates replace the same capsule ID. Importing an existing ID requires an overwrite confirmation in the UI. Failed writes do not replace the previous file; invalid existing data is reported rather than silently reset.
+Default data directory: `~/.local/share/brain-relay`. Override with `RELAY_DATA_DIR=/path/to/data`. Back up `capsules.json`; exporting individual capsules is also supported. Updates replace the same capsule ID. If you edit while a save is in progress, the submitted snapshot is saved and newer edits remain visibly unsaved. Outdated previews are discarded after edits, capsule switches or budget changes. Importing an existing ID requires an overwrite confirmation in the UI. Failed writes do not replace the previous file; invalid existing data is reported rather than silently reset.
 
 This is a **single-user, single-process local app**. Use only one process per data directory. There are no accounts, synchronization or encryption at rest. The server binds only `127.0.0.1`, validates loopback Host values and rejects cross-site or missing-CSRF writes. Do not expose the Flask development server to a public network or deploy behind a public reverse proxy. Use your operating system's account and disk protections for local data.
 
@@ -90,4 +90,4 @@ python -m pip install '.[test]'
 python -m pytest -q
 ```
 
-Tests exercise round trips, actual persistence after a new app instance, confirmation semantics, budgets, hostile text, cross-site requests, provider failures and a local HTTP fake provider. CI runs on Python 3.10 and 3.14, builds a wheel and tests installed templates/examples outside the checkout. No frontend build is required. UI guidance is in [DESIGN.md](DESIGN.md).
+Tests exercise round trips, actual persistence after a new app instance, confirmation semantics, budgets, hostile text, cross-site requests, provider failures and a local HTTP fake provider. CI runs on Python 3.10 and 3.14, builds a wheel and tests installed templates/examples outside the checkout. Browser state regressions run in CI on both Python versions. To run them locally, install `.[test,browser]`, run `python -m playwright install chromium`, then `python -m pytest -q`. They launch isolated loopback servers with temporary data and cover editing after save, delayed save/preview/import responses and output invalidation. Without the browser extra, this module is explicitly skipped. No frontend build is required. UI guidance is in [DESIGN.md](DESIGN.md).

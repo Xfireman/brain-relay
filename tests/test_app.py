@@ -192,3 +192,12 @@ def test_corrupted_local_store_is_not_reset_on_save(app):
     response=client.get('/api/bootstrap')
     assert response.status_code==500
     assert path.read_text()=='invalid JSON'
+
+
+def test_product_session_cookie_does_not_collide_with_other_local_apps(app):
+    client,headers=authenticated(app)
+    response=client.get('/api/bootstrap')
+    assert app.config['SESSION_COOKIE_NAME']=='brain_relay_session'
+    assert client.get_cookie('brain_relay_session') is not None
+    client.set_cookie('session','a-cookie-from-another-local-product')
+    assert client.post('/api/capsules',json=capsule(),headers=headers).status_code==200

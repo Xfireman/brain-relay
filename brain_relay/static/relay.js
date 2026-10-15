@@ -5,10 +5,13 @@
   const fresh=()=>({schema_version:1,id:crypto.randomUUID(),title:'',goal:'',context:'',decisions:[],rejected:[],next_steps:[],sources:[],updated_at:timestamp(),origin:'manual'});
   let current=fresh(), saved=[], csrf='', dirty=false, configured=false, pendingImport=false, extracted=null, activeJob=null;
   let handoff='', exportText='';
+  let documentVersion=0, previewVersion=0, loadVersion=0;
+  const snapshot=()=>({id:current.id,documentVersion,previewVersion});
+  const matches=(state,includePreview=false)=>state.id===current.id&&state.documentVersion===documentVersion&&(!includePreview||state.previewVersion===previewVersion);
   const messages={};
   function message(id,key,values){messages[id]={key,values};$(id).textContent=key?t(key,values):'';}
-  function invalidate(){handoff='';exportText='';$('handoff-text').value='';$('export-text').value='';$('copy').disabled=true;$('download-text').disabled=true;$('download-json').disabled=true;message('handoff-count','');}
-  function changed(){dirty=true;current.updated_at=timestamp();$('updated').textContent=current.updated_at;message('save-state','unsaved');message('save-feedback','');invalidate();}
+  function invalidate(){previewVersion++;handoff='';exportText='';$('handoff-text').value='';$('export-text').value='';$('copy').disabled=true;$('download-text').disabled=true;$('download-json').disabled=true;message('handoff-count','');}
+  function changed(){documentVersion++;dirty=true;current.updated_at=timestamp();$('updated').textContent=current.updated_at;message('save-state','unsaved');message('save-feedback','');invalidate();}
   function errorMessage(error){
     if(error.code==='model_not_configured')return t('modelUnavailable');
     if(error.code==='storage_error')return t('storageError');
@@ -23,10 +26,10 @@
     if(!response.ok){const error=new Error(data.error||t('network'));Object.assign(error,data);throw error;}
     return data;
   }
-  async function busy(button,fn){
+  async function busy(button,fn,canEnable=()=>true){
     if(button.disabled)return;
     button.disabled=true;const label=button.textContent;button.textContent=t('busy');
-    try{await fn();}finally{button.disabled=false;button.textContent=label;}
+    try{await fn();}finally{button.disabled=!canEnable();button.textContent=label;}
   }
   function collect(){['title','goal','context'].forEach(key=>{current[key]=$(key).value;});return structuredClone(current);}
   function ready(){
@@ -83,7 +86,7 @@
     message('provider-status',configured?'hasModel':'noModel');$('extract').disabled=!configured;
     renderLists();renderLibrary();
   }
-  function load(c,unsaved=true){current=structuredClone(c);dirty=unsaved;pendingImport=false;invalidate();message('form-error','');render();}
+  function load(c,unsaved=true){documentVersion++;loadVersion++;current=structuredClone(c);dirty=unsaved;pendingImport=false;invalidate();message('form-error','');render();}
   function download(text,name,type){const url=URL.createObjectURL(new Blob([text],{type}));const link=document.createElement('a');link.href=url;link.download=name;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}
   ['title','goal','context'].forEach(key=>{$(key).addEventListener('input',()=>{current[key]=$(key).value;changed();});});
   $('budget').addEventListener('input',invalidate);
@@ -93,26 +96,55 @@
   });});
   $('library').addEventListener('change',()=>{const selected=saved.find(c=>c.id===$('library').value);if(selected&&canReplace())load(selected,false);else renderLibrary();});
   $('new').addEventListener('click',()=>{if(canReplace()){load(fresh(),false);message('save-feedback','newReady');$('title').focus();}});
-  $('example').addEventListener('click',()=>busy($('example'),async()=>{if(!canReplace())return;try{const demo=await api('/api/example');demo.id=crypto.randomUUID();load(demo);message('save-feedback','exampleReady');}catch(e){$('form-error').textContent=errorMessage(e);}}));
+  $('example').addEventListener('click',()=>busy($('example'),async()=>{
+    if(!canReplace())return;
+    const state=snapshot(), request=++loadVersion;
+    try{const demo=await api('/api/example');if(request!==loadVersion||!matches(state))return;demo.id=crypto.randomUUID();load(demo);message('save-feedback','exampleReady');}
+    catch(e){if(request===loadVersion&&matches(state))$('form-error').textContent=errorMessage(e);}
+  }));
   $('import').addEventListener('change',async()=>{
     const file=$('import').files[0];$('import').value='';if(!file||!canReplace())return;
-    try{if(file.size>500000)throw new Error(t('fileTooLarge'));const data=JSON.parse(await file.text());await api('/api/handoff',{capsule:data,max_chars:null});load(data);pendingImport=true;message('save-feedback','importReady');}catch(e){$('form-error').textContent=e.code?errorMessage(e):t('importError')+' '+e.message;}
+    const state=snapshot(), request=++loadVersion;
+    try{
+      if(file.size>500000)throw new Error(t('fileTooLarge'));
+      const data=JSON.parse(await file.text());
+      if(request!==loadVersion||!matches(state))return;
+      await api('/api/handoff',{capsule:data,max_chars:null});
+      if(request!==loadVersion||!matches(state))return;
+      load(data);pendingImport=true;message('save-feedback','importReady');
+    }catch(e){if(request===loadVersion&&matches(state))$('form-error').textContent=e.code?errorMessage(e):t('importError')+' '+e.message;}
   });
   $('capsule-form').addEventListener('submit',event=>{event.preventDefault();busy($('save'),async()=>{
     if(!ready())return;if(pendingImport&&saved.some(c=>c.id===current.id)&&!window.confirm(t('overwrite')))return;
-    try{const result=await api(pendingImport?'/api/import':'/api/capsules',collect());saved=[result,...saved.filter(c=>c.id!==result.id)];current=result;dirty=false;pendingImport=false;renderLibrary();message('save-state','saved');message('save-feedback','saved');}catch(e){$('form-error').textContent=errorMessage(e);}
+    const state=snapshot(), value=collect();
+    try{
+      const result=await api(pendingImport?'/api/import':'/api/capsules',value);
+      saved=[result,...saved.filter(c=>c.id!==result.id)];renderLibrary();
+      // The editor's item callbacks retain these objects. Saving validates an exact
+      // snapshot; never replace the live graph with the response or a stale snapshot.
+      if(matches(state)){dirty=false;pendingImport=false;message('save-state','saved');message('save-feedback','saved');}
+      else if(current.id===state.id)message('save-feedback','savedEarlier');
+    }catch(e){if(matches(state))$('form-error').textContent=errorMessage(e);}
   });});
   $('generate').addEventListener('click',()=>busy($('generate'),async()=>{
     if(!ready())return;const raw=$('budget').value;const budget=raw===''?null:Number(raw);
     if(budget!==null&&(!Number.isInteger(budget)||budget<1||budget>1000000)){message('handoff-error','invalidBudget');$('budget').setAttribute('aria-invalid','true');return;}
     $('budget').removeAttribute('aria-invalid');message('handoff-error','');
-    try{const result=await api('/api/handoff',{capsule:collect(),max_chars:budget});handoff=result.text;$('handoff-text').value=handoff;$('handoff-count').textContent=result.chars+' '+t('savedCount');$('copy').disabled=false;$('download-text').disabled=false;}
-    catch(e){invalidate();if(e.code==='budget_too_small'){message('handoff-error','budgetError',{required:e.required_chars,budget:e.max_chars,...e.omitted});}else $('handoff-error').textContent=errorMessage(e);}
+    const state=snapshot();
+    try{const result=await api('/api/handoff',{capsule:collect(),max_chars:budget});if(!matches(state,true))return;handoff=result.text;$('handoff-text').value=handoff;$('handoff-count').textContent=result.chars+' '+t('savedCount');$('copy').disabled=false;$('download-text').disabled=false;}
+    catch(e){if(!matches(state,true))return;invalidate();if(e.code==='budget_too_small'){message('handoff-error','budgetError',{required:e.required_chars,budget:e.max_chars,...e.omitted});}else $('handoff-error').textContent=errorMessage(e);}
   }));
-  $('copy').addEventListener('click',()=>busy($('copy'),async()=>{try{await navigator.clipboard.writeText(handoff);message('handoff-count','copied');}catch(e){message('handoff-error','copyFail');$('handoff-text').focus();$('handoff-text').select();}}));
+  $('copy').addEventListener('click',()=>busy($('copy'),async()=>{
+    const state=snapshot();
+    try{await navigator.clipboard.writeText(handoff);if(matches(state,true))message('handoff-count','copied');}
+    catch(e){if(matches(state,true)){message('handoff-error','copyFail');$('handoff-text').focus();$('handoff-text').select();}}
+  },()=>Boolean(handoff)));
   $('download-text').addEventListener('click',()=>download(handoff,'brain-relay-handoff.txt','text/plain;charset=utf-8'));
   $('export').addEventListener('click',()=>busy($('export'),async()=>{
-    if(!ready())return;try{const value=collect();await api('/api/handoff',{capsule:value,max_chars:null});exportText=JSON.stringify(value,null,2)+'\n';$('export-text').value=exportText;$('export-panel').open=true;$('download-json').disabled=false;message('handoff-error','');}catch(e){$('handoff-error').textContent=errorMessage(e);}
+    if(!ready())return;
+    const state=snapshot(), value=collect();
+    try{await api('/api/handoff',{capsule:value,max_chars:null});if(!matches(state,true))return;exportText=JSON.stringify(value,null,2)+'\n';$('export-text').value=exportText;$('export-panel').open=true;$('download-json').disabled=false;message('handoff-error','');}
+    catch(e){if(matches(state,true))$('handoff-error').textContent=errorMessage(e);}
   }));
   $('download-json').addEventListener('click',()=>download(exportText,'brain-relay-capsule.json','application/json;charset=utf-8'));
   async function poll(){

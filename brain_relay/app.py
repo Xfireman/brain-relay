@@ -15,6 +15,7 @@ from .storage import Storage
 def create_app(config=None):
     app = Flask(__name__)
     app.config.update(SECRET_KEY=secrets.token_hex(32), MAX_CONTENT_LENGTH=500000,
+                      SESSION_COOKIE_NAME='brain_relay_session',
                       SESSION_COOKIE_HTTPONLY=True, SESSION_COOKIE_SAMESITE='Strict',
                       TRUSTED_HOSTS=['localhost','127.0.0.1','[::1]'],
                       DATA_DIR=os.getenv('RELAY_DATA_DIR', str(Path.home()/'.local/share/brain-relay')),
