@@ -1,44 +1,79 @@
 # Brain Relay
 
-**Keep the work intact when you switch AI conversations.**
+## New chat. Same work.
 
-[中文](README.zh-CN.md) · [MIT license](LICENSE)
+You have already explained the goal, ruled out two approaches and agreed on the next step. Then you open another AI conversation—and spend the first few messages explaining it all again.
 
-A task capsule holds your goal, context, confirmed decisions, candidates, rejected approaches, next steps and source references. Edit it locally, then copy a complete handoff into any AI. You can use the entire main workflow without an account, API key or model.
+**Brain Relay gives your next conversation a starting point: what you are doing, what is settled, what is still open and what happens next.**
 
-![Brain Relay, synthetic example](docs/images/workspace-light.png)
+[Try the example](#try-the-example) · [Download Alpha](https://github.com/Xfireman/brain-relay/releases/tag/v0.1.0-alpha.1) · [中文](README.zh-CN.md)
 
-## Run in two minutes
+Local app · No API key needed for the core workflow · MIT · Alpha
 
-Python 3.10 or later is required. From this repository:
+### Keep the decisions that make the work yours
 
-```bash
+A general summary can flatten the details that matter: “we considered this” becomes “we decided this,” or an approach you rejected comes back as a suggestion.
+
+Relay gives each kind of information its own place. You review the goal, context, decisions, rejected approaches, next steps and references, then copy the handoff into your next AI conversation.
+
+Here is an abridged handoff from the included fictional **Neighborhood park map** example:
+
+> - **Goal:** create a bilingual walking map for new neighbors.
+> - **Confirmed:** use a printable A4 map.
+> - **Still open:** consider a QR code for accessible routes.
+> - **Rejected:** collecting visitor location data.
+> - **Next:** verify bus stops and accessible entrances.
+
+That distinction travels with the task. The next assistant can see which ideas need confirmation and which approaches you have already ruled out. You still review what it does with the handoff.
+
+![An editable task and its handoff preview, using a fictional example](docs/images/workspace-light.png)
+
+*Edit on the left, preview the handoff on the right. The downloaded text matches the preview.*
+
+### Bring it to the next place you work
+
+- **Switch AI conversations:** copy a handoff into the next chat without installing a browser extension or connecting accounts.
+- **Return tomorrow:** reopen a saved task with its decisions and next steps intact.
+- **Hand it to a colleague:** export a reviewed capsule; they can import, edit and continue their own copy.
+
+You choose what goes into a task capsule. The core workflow is manual, local and works without a model. A configured model can help extract a draft from pasted conversation text; its decisions remain unconfirmed until you review them.
+
+## Try the example
+
+Requires Python 3.10+ and Git. On macOS or Linux:
+
+```sh
+git clone https://github.com/Xfireman/brain-relay.git
+cd brain-relay
 python3 -m venv .venv
-source .venv/bin/activate
+. .venv/bin/activate
 python -m pip install .
 brain-relay
 ```
 
-Open **http://127.0.0.1:7332**. On Windows, activate with `.venv\Scripts\activate`. `python -m brain_relay` is an equivalent launcher; `--port 7340` selects another port.
+Open **http://127.0.0.1:7332**, then:
 
-1. Click **Load synthetic example** to see a complete capsule, or **New capsule** to start yours.
-2. Edit the goal and context. Review decisions individually: candidates remain unconfirmed. Rejected approaches stay separate from actions.
-3. Click **Save capsule locally**. Reopen it from **Saved capsules** after a restart.
-4. Click **Preview handoff**, review the text, then **Copy** or **Download .txt**.
-5. Use **Preview JSON export** and **Download .json** to share a capsule. Another person can **Import JSON**, review, and save it.
+1. Click **Load synthetic example**.
+2. Notice how the printable map, optional QR code and rejected location tracking stay separate.
+3. Add your own next step and **Save capsule locally**.
+4. Choose **Preview handoff**, read it, then **Copy** it into a new AI conversation.
 
-The preview is exactly what the download contains. Review source excerpts as well as task text: Relay does **not** automatically redact personal information that you enter.
+For a file you can edit later, use **Preview JSON export** and **Download .json**. Review the full contents before sharing; text and source excerpts you entered are included.
 
-## What works in this Alpha
+On Windows, use `py -m venv .venv` and `.venv\Scripts\activate`. You can also [download the source archive](https://github.com/Xfireman/brain-relay/releases/tag/v0.1.0-alpha.1) and install from the extracted directory. After installation, `brain-relay` works from any directory; `--port 7340` changes the port.
 
-- Ordinary editable forms, UTF-8 JSON import/export and atomic local saves.
-- Confirmed and candidate decisions remain distinct. No conversion of rejected approaches into next steps.
-- Source references, record timestamps and capsule update time appear in the handoff.
-- Optional character budget. If the complete text does not fit, Relay refuses a partial handoff and reports the required size and omitted categories. No silent truncation. Characters are Unicode code points, **not model tokens**.
-- English/Chinese interface, saved language preference, light/dark themes, keyboard navigation, mobile layout and `/styleguide`.
-- Optional model extraction produces a reviewable draft. All extracted decisions start unconfirmed, and no model job saves a capsule automatically.
+### A small, deliberate handoff
+
+Use Relay when **a task matters enough that restarting the explanation is getting in the way**. The handoff is editable text, so you can inspect exactly what another AI receives. If you set a character budget that cannot fit the complete handoff, Relay reports the shortfall instead of silently dropping decisions.
+
+This Alpha saves to your computer. Moving work between tools happens by copying text or transferring a file; automatic account synchronization is outside this release.
+
+For a reusable method, see [Brain Recipes](https://github.com/Xfireman/brain-recipes). To ask questions of selected notes, see [Brain Twin](https://github.com/Xfireman/brain-twin).
 
 ## Optional model extraction
+
+<details>
+<summary>Set up conversation-to-draft extraction</summary>
 
 Configure a chat-completions-compatible provider **before starting** the server. Set `BRAIN_MODEL_URL` to the full endpoint, `BRAIN_MODEL_NAME` to the model identifier and `BRAIN_MODEL_KEY` to its API key. All three must be set, or all must be absent. Local providers requiring no authentication can use a dummy, non-secret value for the key.
 
@@ -57,7 +92,12 @@ Clicking **Extract a draft** sends only the pasted conversation, its task title,
 
 The server key stays out of browser responses, local capsule files, exports and logs. Upstream errors are returned as a generic failure. Malformed model output fails validation; there is no fallback to a canned result. The model can still misunderstand the conversation or invent content—check every draft and its sources yourself. Reference validity and human confirmation do not prove semantic accuracy.
 
+</details>
+
 ## Local data and limits
+
+<details>
+<summary>Storage, privacy and operating limits</summary>
 
 Default data directory: `~/.local/share/brain-relay`. Override with `RELAY_DATA_DIR=/path/to/data`. Back up `capsules.json`; exporting individual capsules is also supported. Updates replace the same capsule ID. If you edit while a save is in progress, the submitted snapshot is saved and newer edits remain visibly unsaved. Outdated previews are discarded after edits, capsule switches or budget changes. Importing an existing ID requires an overwrite confirmation in the UI. Failed writes do not replace the previous file; invalid existing data is reported rather than silently reset.
 
@@ -67,7 +107,12 @@ Limits: 100 saved capsules; 100 entries per section; 20,000 characters per main 
 
 There is no chat-history recorder. Pasted conversations are held only for the extraction request, not stored separately. The user-reviewed extracted fields may contain excerpts; those are part of the capsule and its export.
 
+</details>
+
 ## API
+
+<details>
+<summary>API endpoints and capsule format</summary>
 
 Start with `GET /api/bootstrap` to obtain a session cookie and `csrf_token`. Send `X-CSRF-Token` and that cookie on writes. Browser callers must be same-origin. All requests/responses are JSON unless noted.
 
@@ -83,7 +128,12 @@ Start with `GET /api/bootstrap` to obtain a session cookie and `csrf_token`. Sen
 
 The complete version-1 schema is illustrated by [the synthetic example](brain_relay/examples/park-map.json). Unknown fields and unsupported schema versions are rejected. Each item has a strict JSON boolean `confirmed`; strings such as `"false"` are invalid. Timestamps include timezone information. `origin` is `manual`, `demo`, or `configured provider`—a provenance hint, not an authenticity signature. The portable domain functions are `validate_capsule(data)` and `render_handoff(capsule, max_chars=None)` in `brain_relay.relay`.
 
+</details>
+
 ## Development
+
+<details>
+<summary>Tests, browser checks and development setup</summary>
 
 ```bash
 python -m pip install '.[test]'
@@ -91,3 +141,5 @@ python -m pytest -q
 ```
 
 Tests exercise round trips, actual persistence after a new app instance, confirmation semantics, budgets, hostile text, cross-site requests, provider failures and a local HTTP fake provider. CI runs on Python 3.10 and 3.14, builds a wheel and tests installed templates/examples outside the checkout. Browser state regressions run in CI on both Python versions. To run them locally, install `.[test,browser]`, run `python -m playwright install chromium`, then `python -m pytest -q`. They launch isolated loopback servers with temporary data and cover editing after save, delayed save/preview/import responses and output invalidation. Without the browser extra, this module is explicitly skipped. No frontend build is required. UI guidance is in [DESIGN.md](DESIGN.md).
+
+</details>
