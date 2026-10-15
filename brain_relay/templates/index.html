@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block scripts %}<script defer src="{{ asset('relay.js') }}"></script>{% endblock %}
+{% block content %}
+<section class="intro">
+  <div><p class="eyebrow" data-i18n="eyebrow">A small bridge between conversations</p><h1 data-i18n="headline">Carry the work forward.</h1><p class="lead" data-i18n="intro">Keep the goal, decisions and next step together. Hand a clear task capsule to any AI — or to your future self.</p></div>
+  <ol class="steps"><li><span>01</span><b data-i18n="step1">Organize</b></li><li><span>02</span><b data-i18n="step2">Review</b></li><li><span>03</span><b data-i18n="step3">Continue</b></li></ol>
+</section>
+<section class="workspace-bar" aria-label="Workspace">
+  <label class="library-label" for="library" data-i18n="library">Saved capsules</label>
+  <select class="relay-input library" id="library"><option value="" data-i18n="emptyLibrary">Start your first capsule</option></select>
+  <button class="relay-btn ghost" type="button" id="new" data-i18n="new">New capsule</button>
+  <button class="relay-btn ghost" type="button" id="example" data-i18n="example">Load synthetic example</button>
+  <label class="relay-btn ghost" for="import" data-i18n="import">Import JSON</label><input type="file" id="import" class="visually-hidden" accept=".json,application/json">
+</section>
+<div class="workspace">
+  <div class="editor">
+    <form id="capsule-form" novalidate>
+      <section class="relay-panel">
+        <div class="panel-head"><div><p class="eyebrow" data-i18n="capsule">TASK CAPSULE</p><h2 data-i18n="essentials">Start with the essentials</h2></div><span class="relay-badge" id="origin"></span></div>
+        <div class="panel-body">
+          <label for="title" data-i18n="title">Task title</label><textarea class="relay-input" id="title" rows="1" maxlength="200" required aria-describedby="form-error"></textarea>
+          <label for="goal" data-i18n="goal">Goal — what does done look like?</label><textarea class="relay-input" id="goal" rows="3" maxlength="20000" required aria-describedby="form-error"></textarea>
+          <label for="context" data-i18n="context">Context — what should the next person know?</label><textarea class="relay-input" id="context" rows="4" maxlength="20000"></textarea>
+          <div class="meta-line"><span data-i18n="updated">Updated</span><time id="updated" class="relay-mono"></time><span id="save-state" class="relay-muted"></span></div>
+          <p id="form-error" class="relay-error" role="alert"></p>
+        </div>
+      </section>
+      <section class="relay-panel"><div class="panel-head"><h2 data-i18n="confirmed">Confirmed decisions</h2><button class="relay-btn ghost small" type="button" data-add="confirmed" data-i18n="add">Add</button></div><div class="panel-body" id="confirmed-list"></div></section>
+      <section class="relay-panel"><div class="panel-head"><div><h2 data-i18n="candidates">Candidate decisions</h2><p class="relay-muted" data-i18n="candidateHint">Possibilities to confirm, not settled decisions.</p></div><button class="relay-btn ghost small" type="button" data-add="candidates" data-i18n="add">Add</button></div><div class="panel-body" id="candidates-list"></div></section>
+      <section class="relay-panel"><div class="panel-head"><div><h2 data-i18n="rejected">Rejected approaches</h2><p class="relay-muted" data-i18n="rejectedHint">Keep the “no” visible. These never become next steps.</p></div><button class="relay-btn ghost small" type="button" data-add="rejected" data-i18n="add">Add</button></div><div class="panel-body" id="rejected-list"></div></section>
+      <section class="relay-panel"><div class="panel-head"><h2 data-i18n="next_steps">Next steps</h2><button class="relay-btn ghost small" type="button" data-add="next_steps" data-i18n="add">Add</button></div><div class="panel-body" id="next_steps-list"></div></section>
+      <section class="relay-panel"><div class="panel-head"><h2 data-i18n="sources">Sources & references</h2><button class="relay-btn ghost small" type="button" data-add="sources" data-i18n="add">Add</button></div><div class="panel-body" id="sources-list"></div></section>
+      <div class="save-bar"><button class="relay-btn" type="submit" id="save" data-i18n="save">Save capsule locally</button><span id="save-feedback" role="status" class="relay-muted"></span></div>
+    </form>
+  </div>
+  <aside class="output-column">
+    <section class="relay-panel handoff-panel">
+      <div class="panel-head"><div><p class="eyebrow" data-i18n="handoffLabel">READY FOR THE NEXT CONVERSATION</p><h2 data-i18n="handoff">Your handoff</h2></div><span aria-hidden="true" class="handoff-icon">↗</span></div>
+      <div class="panel-body">
+        <p class="relay-muted" data-i18n="handoffHint">Review every field before sharing. Only the capsule is included; source text you enter is shared as written.</p>
+        <label for="budget" data-i18n="budget">Character budget (optional)</label><input class="relay-input relay-mono" id="budget" type="number" min="1" max="1000000" placeholder="12000" aria-describedby="handoff-error">
+        <p class="relay-muted" data-i18n="budgetHint">Unicode characters, not model tokens. A small budget reports what is missing; it never silently cuts decisions.</p>
+        <button class="relay-btn ghost full" type="button" id="generate" data-i18n="generate">Preview handoff</button>
+        <p class="relay-error" id="handoff-error" role="alert"></p>
+        <label for="handoff-text" class="visually-hidden" data-i18n="handoff">Your handoff</label><textarea id="handoff-text" class="relay-input relay-mono preview" readonly rows="14" data-i18n-placeholder="previewEmpty"></textarea>
+        <p id="handoff-count" class="relay-muted relay-mono" role="status"></p>
+        <div class="toolbar"><button class="relay-btn ghost" id="copy" type="button" disabled data-i18n="copy">Copy</button><button class="relay-btn ghost" id="download-text" type="button" disabled data-i18n="downloadText">Download .txt</button></div>
+        <button class="relay-btn ghost full export-trigger" type="button" id="export" data-i18n="export">Preview JSON export</button>
+        <details id="export-panel"><summary data-i18n="exportPreview">JSON export preview</summary><p class="relay-muted" data-i18n="shareWarning">Review this exact file before sharing. Relay does not automatically redact personal content.</p><label for="export-text" class="visually-hidden" data-i18n="exportPreview">JSON export preview</label><textarea id="export-text" class="relay-input relay-mono preview" readonly rows="10"></textarea><button class="relay-btn ghost full" id="download-json" type="button" disabled data-i18n="downloadJson">Download .json</button></details>
+      </div>
+    </section>
+    <section class="relay-panel">
+      <div class="panel-head"><div><p class="eyebrow" data-i18n="optional">OPTIONAL</p><h2 data-i18n="extract">From a conversation</h2></div></div>
+      <div class="panel-body"><p id="provider-status" class="relay-note"></p><p class="relay-muted" data-i18n="extractHint">Configured model output becomes a draft. Every decision starts unconfirmed; check sources before saving. Pasted text is sent to your configured provider only.</p><label for="conversation" data-i18n="conversation">Paste conversation</label><textarea class="relay-input" id="conversation" rows="5" maxlength="60000" aria-describedby="model-error"></textarea><button type="button" id="extract" class="relay-btn ghost full" disabled data-i18n="extractAction">Extract a draft</button><p class="relay-error" id="model-error" role="alert"></p><p id="model-state" class="relay-muted" role="status"></p><button type="button" id="load-draft" class="relay-btn ghost full" hidden data-i18n="loadDraft">Review extracted draft</button></div>
+    </section>
+  </aside>
+</div>
+{% endblock %}

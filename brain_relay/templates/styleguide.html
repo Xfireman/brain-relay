@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Brain Relay — Styleguide{% endblock %}
+{% block content %}
+<section class="intro"><div><p class="eyebrow">BRAIN RELAY</p><h1 data-i18n="styleguide">Styleguide</h1><p class="lead" data-i18n="styleguideHint">Live components, using the same CSS as the workspace.</p></div></section>
+<div class="theme-pair">
+{% for theme in ['light','dark'] %}
+<section data-theme="{{ theme }}" class="theme-pane"><h2>{{ theme }}</h2><div class="relay-panel"><div class="panel-head"><h2 data-i18n="essentials">Start with the essentials</h2><span class="relay-badge" data-i18n="demoOrigin">Synthetic example</span></div><div class="panel-body"><p data-i18n="intro">Keep the goal, decisions and next step together.</p><p class="relay-muted" data-i18n="candidateHint">Possibilities to confirm, not settled decisions.</p><label for="sample-{{theme}}" data-i18n="title">Task title</label><input id="sample-{{theme}}" class="relay-input" value="Neighborhood map / 社区地图"><div class="toolbar"><button type="button" class="relay-btn" data-i18n="save">Save capsule locally</button><button type="button" class="relay-btn ghost" data-i18n="example">Load synthetic example</button></div><p class="relay-note" data-i18n="noModel">No model configured. Manual editing and handoffs work without a key.</p><p class="relay-error" data-i18n="required">Add a title and goal before continuing.</p><div class="relay-empty" data-i18n="emptyItems">No items yet. Use Add to record one.</div><p class="relay-mono">2026-01-12T10:00:00Z · sample-001</p></div></div></section>
+{% endfor %}
+</div>
+{% endblock %}

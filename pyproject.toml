@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "brain-relay"
+version = "0.1.0a1"
+description = "Local, portable task capsules for continuing work across AI conversations"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [{name = "Brain Contributors"}]
+dependencies = ["Flask>=3.1,<4"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Web Environment",
+  "Programming Language :: Python :: 3",
+  "Topic :: Office/Business",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8,<10"]
+browser = ["playwright>=1.48,<2"]
+
+[project.scripts]
+brain-relay = "brain_relay.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["brain_relay*"]
+
+[tool.setuptools.package-data]
+brain_relay = ["templates/*.html", "static/*.css", "static/*.js", "examples/*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

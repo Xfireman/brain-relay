@@ -1,0 +1,115 @@
+
+:root, [data-theme="light"] {
+  color-scheme: light;
+
+
+  --relay-bg:            #F3F5F9;
+  --relay-surface:       #FFFFFF;
+  --relay-surface-2:     #F8FAFC;
+  --relay-surface-3:     #EEF2F7;
+  --relay-hover:         #EDF1F7;
+  --relay-border:        #DDE3EC;
+  --relay-border-strong: #C4CDDB;
+  --relay-border-faint:  #E9EDF3;
+  --relay-fill-hover:    rgba(23, 32, 46, .05);
+  --relay-fill-muted:    rgba(23, 32, 46, .08);
+  --relay-mask:          rgba(23, 32, 46, .45);
+
+
+  --relay-text:   #17202E;
+  --relay-text-2: #46536A;
+  --relay-text-3: #606D83;
+  --relay-text-4: #7F8CA3;
+
+
+  --relay-primary:        #076AAB;
+  --relay-primary-hover:  #076AAB;
+  --relay-primary-text:   #076AAB;
+  --relay-primary-soft:   rgba(10, 127, 199, .09);
+  --relay-primary-border: rgba(10, 127, 199, .32);
+  --relay-on-primary:     #FFFFFF;
+
+
+  --relay-danger: #E02424;  --relay-danger-text: #C81E1E;  --relay-danger-soft: rgba(224, 36, 36, .08);
+  --relay-warn:   #C27803;  --relay-warn-text:   #9B6202;  --relay-warn-soft:   rgba(194, 120, 3, .10);
+  --relay-ok:     #0E9F6E;  --relay-ok-text:     #0B7E58;  --relay-ok-soft:     rgba(14, 159, 110, .10);
+
+
+  --relay-cat-1: #2a78d6;  --relay-cat-2: #eb6834;  --relay-cat-3: #1baf7a;  --relay-cat-4: #eda100;
+  --relay-cat-5: #e87ba4;  --relay-cat-6: #008300;  --relay-cat-7: #4a3aa7;  --relay-cat-8: #e34948;
+  --relay-cat-other: var(--relay-text-4);
+  --relay-seq:       #2a78d6;
+  --relay-div-neg:   #eb6834;  --relay-div-mid: #9AA4B4;  --relay-div-pos: #2a78d6;
+
+
+  --relay-sev-1: #ff9b9f;  --relay-sev-2: #dd6870;  --relay-sev-3: #b13846;  --relay-sev-4: #7b1225;
+
+
+  --relay-space-1: 4px;   --relay-space-2: 8px;   --relay-space-3: 12px;  --relay-space-4: 16px;
+  --relay-space-5: 20px;  --relay-space-6: 24px;  --relay-space-7: 32px;  --relay-space-8: 40px;
+
+
+  --relay-fs-xs: 11px;  --relay-fs-sm: 12.5px;  --relay-fs-md: 13.5px;
+  --relay-fs-lg: 16px;  --relay-fs-xl: 20px;    --relay-fs-2xl: 26px;
+  --relay-lh-tight: 1.3;  --relay-lh-normal: 1.55;  --relay-lh-loose: 1.75;
+  --relay-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+              "PingFang SC", "Microsoft YaHei", sans-serif;
+  --relay-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+
+  --relay-r-sm: 4px;  --relay-r-md: 6px;  --relay-r-lg: 8px;  --relay-r-xl: 10px;
+
+
+  --relay-shadow-1: 0 1px 3px rgba(23, 32, 46, .08);
+  --relay-shadow-2: 0 4px 14px rgba(23, 32, 46, .10);
+  --relay-shadow-3: 0 12px 32px rgba(23, 32, 46, .16);
+
+
+  --relay-dur: 150ms;
+  --relay-ease: cubic-bezier(.4, 0, .2, 1);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --relay-bg:            #0B0E14;
+  --relay-surface:       #121722;
+  --relay-surface-2:     #0F131C;
+  --relay-surface-3:     #1A2130;
+  --relay-hover:         #1C2434;
+  --relay-border:        #212A3B;
+  --relay-border-strong: #2E3950;
+  --relay-border-faint:  #1A2231;
+  --relay-fill-hover:    rgba(255, 255, 255, .05);
+  --relay-fill-muted:    rgba(255, 255, 255, .08);
+  --relay-mask:          rgba(3, 6, 12, .68);
+
+  --relay-text:   #E6EBF4;
+  --relay-text-2: #AEB9CB;
+  --relay-text-3: #8391A6;
+  --relay-text-4: #5F6C7D;
+
+  --relay-primary:        #53C7FF;
+  --relay-primary-hover:  #7AD4FF;
+  --relay-primary-text:   #7AD4FF;
+  --relay-primary-soft:   rgba(83, 199, 255, .12);
+  --relay-primary-border: rgba(83, 199, 255, .35);
+  --relay-on-primary:     #06121F;
+
+  --relay-danger: #FF6166;  --relay-danger-text: #FF8A8E;  --relay-danger-soft: rgba(255, 97, 102, .12);
+  --relay-warn:   #FFB224;  --relay-warn-text:   #FFC65C;  --relay-warn-soft:   rgba(255, 178, 36, .11);
+  --relay-ok:     #33D69F;  --relay-ok-text:     #5FE0B4;  --relay-ok-soft:     rgba(51, 214, 159, .11);
+
+
+  --relay-cat-1: #3987e5;  --relay-cat-2: #d95926;  --relay-cat-3: #199e70;  --relay-cat-4: #c98500;
+  --relay-cat-5: #d55181;  --relay-cat-6: #008300;  --relay-cat-7: #9085e9;  --relay-cat-8: #e66767;
+  --relay-seq:     #3987e5;
+  --relay-div-neg: #d95926;  --relay-div-mid: #6B7688;  --relay-div-pos: #3987e5;
+
+
+  --relay-sev-1: #664245;  --relay-sev-2: #984d55;  --relay-sev-3: #cb5666;  --relay-sev-4: #ff5c78;
+
+  --relay-shadow-1: none;
+  --relay-shadow-2: 0 4px 14px rgba(0, 0, 0, .35);
+  --relay-shadow-3: 0 12px 32px rgba(0, 0, 0, .55);
+}

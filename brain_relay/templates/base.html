@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{% block title %}Brain Relay — task capsules{% endblock %}</title>
+  <script>try{document.documentElement.dataset.theme=localStorage.getItem('relay-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.lang=localStorage.getItem('relay-lang')||(navigator.language.startsWith('zh')?'zh':'en')}catch(e){}</script>
+  <link rel="stylesheet" href="{{ asset('tokens.css') }}">
+  <link rel="stylesheet" href="{{ asset('app.css') }}">
+  {% block style %}{% endblock %}
+  <script defer src="{{ asset('i18n.js') }}"></script>
+  <script defer src="{{ asset('base.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</head>
+<body>
+<a class="skip" href="#main" data-i18n="skip">Skip to content</a>
+<header class="topbar">
+  <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">↗</span> Brain Relay <span class="alpha">ALPHA</span></a>
+  <nav class="toolbar" aria-label="Preferences">
+    <span class="local-note" data-i18n="local">Local workspace</span>
+    <button type="button" class="relay-btn ghost" id="language" aria-label="Switch language">中文 / EN</button>
+    <button type="button" class="relay-btn ghost" id="theme" data-i18n="theme">Switch theme</button>
+  </nav>
+</header>
+<main id="main">{% block content %}{% endblock %}</main>
+<footer><span data-i18n="footer">Your next conversation starts with the work intact.</span><a href="/styleguide" data-i18n="styleguide">Styleguide</a></footer>
+</body>
+</html>

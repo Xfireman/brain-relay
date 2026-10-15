@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "id": "demo-park-map",
+  "title": "Neighborhood park map / 社区公园地图",
+  "goal": "Create a bilingual walking map for new neighbors.\n给新邻居做一份中英双语步行地图 🌿",
+  "context": "A volunteer group is preparing a free weekend walk. The first discussion chose an offline map.\n志愿者准备周末免费步行活动，首轮讨论决定使用离线地图。",
+  "decisions": [
+    {
+      "text": "Use a printable A4 map / 使用可打印的 A4 地图",
+      "source": "Synthetic planning note, message 2 / 合成讨论第 2 条",
+      "confirmed": true,
+      "recorded_at": "2026-01-12T10:00:00Z"
+    },
+    {
+      "text": "Consider a QR code for accessible routes / 考虑用二维码补充无障碍路线",
+      "source": "Synthetic planning note, message 3 / 合成讨论第 3 条",
+      "confirmed": false,
+      "recorded_at": "2026-01-12T10:00:00Z"
+    }
+  ],
+  "rejected": [
+    {
+      "text": "Do not collect visitor location data / 不收集游客位置数据",
+      "source": "Synthetic planning note, message 4 / 合成讨论第 4 条",
+      "confirmed": true,
+      "recorded_at": "2026-01-12T10:00:00Z"
+    }
+  ],
+  "next_steps": [
+    {
+      "text": "Verify bus stops and accessible entrances.\n核对公交站和无障碍入口 📝",
+      "source": "Synthetic planning note, message 5 / 合成讨论第 5 条",
+      "confirmed": false,
+      "recorded_at": "2026-01-12T10:00:00Z"
+    }
+  ],
+  "sources": [
+    {
+      "title": "Synthetic planning note / 合成讨论",
+      "reference": "Fictional example. No real people, location records or private conversations.\n虚构素材，不含真人、位置记录或私人对话。",
+      "recorded_at": "2026-01-12T10:00:00Z"
+    }
+  ],
+  "updated_at": "2026-01-12T10:00:00Z",
+  "origin": "demo"
+}
